@@ -69,5 +69,21 @@ export const borrarUser = async (
         return new Response("Persona eliminada exitosamente.", { status: 200 });
     else
         return new Response("Usuario no encontrado.", { status: 404 });
+};
 
-}
+export const actualizarUser = async (
+    body: Partial<User>,
+    usersCollection: Collection<UserModel>
+): Promise<Response> => {
+    const usuarioMod: Partial<UserModel> = {};
+
+    if(body.name) usuarioMod.name = body.name;
+    if(body.tlf) usuarioMod.tlf = body.tlf;
+    if(body.amigos) usuarioMod.amigos = body.amigos;
+
+    const { modifiedCount } = await usersCollection.updateOne({ email: body.email }, { $set: { ...usuarioMod } });
+
+    if(modifiedCount)
+        return new Response("Usuario modificado exitosamente.", { status: 200 });
+    return new Response("Usuario no encontrado.", { status: 404 });
+};

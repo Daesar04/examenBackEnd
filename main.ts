@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { UserModel } from "./types.ts";
-import { addUser, borrarUser, getAllUser } from "./resolvers.ts";
+import { actualizarUser, addUser, borrarUser, getAllUser } from "./resolvers.ts";
 
 // Connection URL
 const url = Deno.env.get("MONGO_URL");
@@ -53,7 +53,15 @@ const handler = async(
   }
   else if(method === "PUT")
   {
+    if(path === "/personas")
+    {
+      const body = await req.json();
 
+      if(body.email && (body.name || body.tlf || body.amigos))
+        return await actualizarUser(body, usersCollection);
+        
+      return new Response("Faltan datos.", { status: 400 });      
+    }
   }
   else if(method === "DELETE")
   {
