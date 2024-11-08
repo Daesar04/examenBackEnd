@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { UserModel } from "./types.ts";
-import { actualizarUser, addUser, borrarUser, getAllUser, getUsersByName } from "./resolvers.ts";
+import { actualizarUser, addUser, borrarUser, getAllUser, getUsersByEmail, getUsersByName } from "./resolvers.ts";
 
 // Connection URL
 const url = Deno.env.get("MONGO_URL");

@@ -115,18 +115,16 @@ export const getUsersByEmail = async (
 
     if(findResult)
     {
-        const usuarioEmail:User = {
+        return new Response(JSON.stringify({
             id: findResult._id.toString(),
             name: findResult.name,
             email: findResult.email,
             tlf: findResult.tlf,
             amigos: await fromModeltoUser(findResult.amigos, usersCollection)
-        };
+        }), { status: 200 });
     }
     else
         return new Response("No hay usuarios con ese email", {status: 404});
-    
-    return new Response(JSON.stringify(usuarioEmail), { status: 200 });
 };
 
 export const borrarUser = async (
