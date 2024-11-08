@@ -30,33 +30,103 @@ export const addUser = async(
     
 };
 
-/*export const fromModeltoUser = async (
+export const fromModeltoUser = async (
     ids: ObjectId[],
     userCollection: Collection<UserModel>
-): Promise<Response> => {
+): Promise<User[]> => {
     const findResult = await userCollection.find({_id : {$in : ids}}).toArray();
 
-    const amigosUser: Partial<User[]> = [];
+    const amigosUser: User[] = [];
 
-    const hola = await Promise.all(findResult.map(async (elem: UserModel) => {
-        amigosUser.push({
-            id: elem._id,
-            name: elem.name,
-            email: elem.email,
-            tlf: elem.tlf
-        })
-    }));
-    
-
-
-}*/
+    if(findResult && findResult.length > 0)
+    {
+        await Promise.all(findResult.map((elem: UserModel) => {
+            const amigo:User = {
+                id: elem._id.toString(),
+                name: elem.name,
+                email: elem.email,
+                tlf: elem.tlf,
+                amigos: elem.amigos
+            };
+            amigosUser.push(amigo);
+        }))
+    }
+    return amigosUser;
+}
 
 export const getAllUser = async (
     usersCollection: Collection<UserModel>
 ): Promise<Response> => {
     const findResult = await usersCollection.find({}).toArray();
+
+    const usuarios: User[] = [];
+
+    if(findResult && findResult.length > 0)
+    {
+        await Promise.all(findResult.map(async (elem: UserModel) => {
+            const amigo:User = {
+                id: elem._id.toString(),
+                name: elem.name,
+                email: elem.email,
+                tlf: elem.tlf,
+                amigos: await fromModeltoUser(elem.amigos, usersCollection)
+            };
+            usuarios.push(amigo);
+        }))
+    }
+    else
+        return new Response("No hay usuarios", {status: 404});
     
-    return new Response(JSON.stringify(findResult), { status: 200 })
+    return new Response(JSON.stringify(usuarios), { status: 200 });
+};
+
+export const getUsersByName = async (
+    nombre: string,
+    usersCollection: Collection<UserModel>
+): Promise<Response> => {
+    const findResult = await usersCollection.find({name: nombre}).toArray();
+
+    const usuarios: User[] = [];
+
+    if(findResult && findResult.length > 0)
+    {
+        await Promise.all(findResult.map(async (elem: UserModel) => {
+            const amigo:User = {
+                id: elem._id.toString(),
+                name: elem.name,
+                email: elem.email,
+                tlf: elem.tlf,
+                amigos: await fromModeltoUser(elem.amigos, usersCollection)
+            };
+            usuarios.push(amigo);
+        }))
+    }
+    else
+        return new Response("No hay usuarios con ese nombre", {status: 404});
+    
+    return new Response(JSON.stringify(usuarios), { status: 200 });
+};
+
+export const getUsersByEmail = async (
+    email: string,
+    usersCollection: Collection<UserModel>
+): Promise<Response> => {
+    const findResult = await usersCollection.findOne({email: email});
+
+    if(findResult)
+    {
+        const usuarioEmail:User = {
+            id: findResult._id.toString(),
+            name: findResult.name,
+            email: findResult.email,
+            tlf: findResult.tlf,
+            amigos: await fromModeltoUser(findResult.amigos, usersCollection)
+        };
+    }
+    else
+        return new Response("No hay usuarios con ese email", {status: 404});
+    
+    return new Response(JSON.stringify(usuarioEmail), { status: 200 });
 };
 
 export const borrarUser = async (

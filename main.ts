@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { UserModel } from "./types.ts";
-import { actualizarUser, addUser, borrarUser, getAllUser } from "./resolvers.ts";
+import { actualizarUser, addUser, borrarUser, getAllUser, getUsersByName } from "./resolvers.ts";
 
 // Connection URL
 const url = Deno.env.get("MONGO_URL");
@@ -33,6 +33,12 @@ const handler = async(
   {
     if(path === "/personas")
     {
+      const nombre = url.searchParams.get('nombre');
+      const email = url.searchParams.get('email');
+      if(nombre)
+        return await getUsersByName(nombre, usersCollection);
+      else if (email)
+        return await getUsersByEmail(email, usersCollection);
       return await getAllUser(usersCollection);
     }
   }
@@ -46,9 +52,7 @@ const handler = async(
       {
         return new Response("bad request", { status: 400 });
       }
-
       return await addUser(body, usersCollection);
-      
     }
   }
   else if(method === "PUT")
