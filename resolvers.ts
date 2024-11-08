@@ -124,7 +124,7 @@ export const getUsersByEmail = async (
         }), { status: 200 });
     }
     else
-        return new Response("No hay usuarios con ese email", {status: 404});
+        return new Response("Persona no encontrada.", {status: 404});
 };
 
 export const borrarUser = async (
@@ -144,6 +144,14 @@ export const actualizarUser = async (
     usersCollection: Collection<UserModel>
 ): Promise<Response> => {
     const usuarioMod: Partial<UserModel> = {};
+
+    const findEmail = await usersCollection.find({email: body.email}).toArray();
+    const findTlf = await usersCollection.find({tlf: body.tlf}).toArray();
+
+    if(findEmail.length > 0)
+        return new Response("No puedes repetir un email que ya existe", { status: 404 });
+    if(findTlf.length > 0)
+        return new Response("No puedes repetir un teléfono que ya existe", { status: 404 });
 
     if(body.name) usuarioMod.name = body.name;
     if(body.tlf) usuarioMod.tlf = body.tlf;
