@@ -145,11 +145,8 @@ export const actualizarUser = async (
 ): Promise<Response> => {
     const usuarioMod: Partial<UserModel> = {};
 
-    const findEmail = await usersCollection.find({email: body.email}).toArray();
     const findTlf = await usersCollection.find({tlf: body.tlf}).toArray();
 
-    if(findEmail.length > 0)
-        return new Response("No puedes repetir un email que ya existe", { status: 404 });
     if(findTlf.length > 0)
         return new Response("No puedes repetir un teléfono que ya existe", { status: 404 });
 
